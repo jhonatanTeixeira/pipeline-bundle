@@ -1,0 +1,9 @@
+app
+src/*/AppBundle
+vendor
+var
+nbproject
+web
+composer.lock
+bin
+src/.htaccess
