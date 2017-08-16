@@ -5,11 +5,7 @@
     "autoload": {
         "psr-4": {
             "Vox\\": "src/Vox"
-        },
-        "classmap": [
-            "app/AppKernel.php",
-            "app/AppCache.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {
@@ -17,6 +13,10 @@
         },
         "files": [
             "vendor/symfony/symfony/src/Symfony/Component/VarDumper/Resources/functions/dump.php"
+        ],
+        "classmap": [
+            "app/AppKernel.php",
+            "app/AppCache.php"
         ]
     },
     "require": {
