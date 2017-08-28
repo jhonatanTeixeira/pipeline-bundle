@@ -8,8 +8,8 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Vox\PipelineBundle\Pipeline\PipelineRunner;
-use Vox\PipelineBundle\Pipeline\Service\DoctrineSubscriber;
-use Vox\PipelineBundle\Pipeline\Service\KernelSubscriber;
+use Vox\PipelineBundle\Service\DoctrineSubscriber;
+use Vox\PipelineBundle\Service\KernelSubscriber;
 
 /**
  * This is the class that loads and manages your bundle configuration.

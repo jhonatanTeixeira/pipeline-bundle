@@ -1,6 +1,6 @@
 <?php
 
-namespace Vox\PipelineBundle\Pipeline\Service;
+namespace Vox\PipelineBundle\Service;
 
 use Doctrine\Common\EventSubscriber;
 use InvalidArgumentException;

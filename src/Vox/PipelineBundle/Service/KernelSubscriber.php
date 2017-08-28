@@ -1,6 +1,6 @@
 <?php
 
-namespace Vox\PipelineBundle\Pipeline\Service;
+namespace Vox\PipelineBundle\Service;
 
 use Vox\PipelineBundle\Pipeline\PipelineContext;
 use Vox\PipelineBundle\Pipeline\PipelineRunner;
