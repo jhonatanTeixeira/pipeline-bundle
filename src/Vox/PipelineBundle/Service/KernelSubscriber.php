@@ -16,19 +16,19 @@ class KernelSubscriber implements EventSubscriberInterface
     /**
      * @var array
      */
-    private $subscribedEvents;
+    private static $subscribedEvents = [];
     
     public function __construct(PipelineRunner $pipelineRunner, array $subscribedEvents)
     {
         $this->pipelineRunner   = $pipelineRunner;
-        $this->subscribedEvents = $subscribedEvents;
+        self::$subscribedEvents[spl_object_hash($this)] = $subscribedEvents;
     }
     
     public static function getSubscribedEvents(): array
     {
         $events = [];
         
-        foreach ($this->subscribedEvents as $event) {
+        foreach (self::$subscribedEvents[spl_object_hash($this)] as $event) {
             $events[$event][] = 'runPipeline';
         }
         
