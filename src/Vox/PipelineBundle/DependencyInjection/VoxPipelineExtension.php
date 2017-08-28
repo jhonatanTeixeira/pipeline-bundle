@@ -9,7 +9,7 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Vox\PipelineBundle\Pipeline\PipelineRunner;
 use Vox\PipelineBundle\Service\DoctrineSubscriber;
-use Vox\PipelineBundle\Service\KernelSubscriber;
+use Vox\PipelineBundle\Service\KernelListener;
 
 /**
  * This is the class that loads and manages your bundle configuration.
@@ -35,49 +35,64 @@ class VoxPipelineExtension extends Extension
 
             $pipelineRunnerDefinition = $container->register($name, PipelineRunner::class);
 
-            $tags      = [];
-            $class     = $pipelineConf['class'] ?? null;
-            $arguments = [new Reference($name)];
-
             switch ($type) {
                 case 'kernel-subscriber':
-                    $typeClass = KernelSubscriber::class;
-                    $tags[]    = 'kernel.event_subscriber';
+                    $this->configureKernelListener($name, $pipelineConf, $container);
                     break;
                 case 'doctrine-subscriber':
-                    $typeClass = DoctrineSubscriber::class;
-                    $tags[]    = 'doctrine.event_subscriber';
+                    $this->configureDoctrineListener($name, $pipelineConf, $container);
                     break;
                 case 'service':
-                    $typeClass = null;
-                    $tags      = $pipelineConf['tags'] ?? [];
+                    $this->configureClass($name, $pipelineConf, $container);
                     break;
                 default:
                     throw new Exception("Invalid pipeline type $type");
-            }
-
-            if ($typeClass) {
-                if (!isset($pipelineConf['subscribedEvents'])) {
-                    throw new Exception('if you chose an event subscriber you need to register the events to subscribe to using option subscribedEvents');
-                }
-
-                $arguments[] = $pipelineConf['subscribedEvents'];
-            }
-
-            if ($class || $typeClass) {
-                $className         = $class ?: $typeClass;
-                $wrapperDefinition = new Definition($className, $arguments);
-
-                foreach ($tags as $tag) {
-                    $wrapperDefinition->addTag($tag);
-                }
-
-                $container->setDefinition($className, $wrapperDefinition);
             }
 
             foreach ($pipelineConf['services'] as $service) {
                 $pipelineRunnerDefinition->addMethodCall('addPipe', [new Reference($service)]);
             }
         }
+    }
+    
+    private function configureKernelListener($name, array $pipelineConf, ContainerBuilder $container)
+    {
+        if (!isset($pipelineConf['subscribedEvents'])) {
+            throw new Exception('if you chose an event subscriber you need to register the events to subscribe to using option subscribedEvents');
+        }
+        
+        foreach ($pipelineConf['subscribedEvents'] as $subscribedEvent) {
+            $listener = new Definition(KernelListener::class, [new Reference($name)]);
+            $listener->addTag('kernel.event_listener', ['event' => $subscribedEvent, 'method' => '__invoke']);
+            $container->setDefinition(sprintf('kernel.listener.%s.%s', $name, $subscribedEvent), $listener);
+        }
+    }
+    
+    private function configureDoctrineListener($name, array $pipelineConf, ContainerBuilder $container)
+    {
+        if (!isset($pipelineConf['subscribedEvents'])) {
+            throw new Exception('if you chose an event subscriber you need to register the events to subscribe to using option subscribedEvents');
+        }
+        
+        $subscriber = new Definition(DoctrineSubscriber::class, [new Reference($name), $pipelineConf['subscribedEvents']]);
+        $subscriber->addTag('doctrine.event_subscriber');
+        $container->setDefinition(sprintf('doctrine.subscriber.%s', $name), $subscriber);
+    }
+    
+    private function configureClass($name, array $pipelineConf, ContainerBuilder $container)
+    {
+        if (!isset($pipelineConf['class'])) {
+            return;
+        }
+        
+        $arguments = [new Reference($name)];
+        
+        if (isset($pipelineConf['subscribedEvents'])) {
+            $arguments[] = $pipelineConf['subscribedEvents'];
+        }
+        
+        $wrapperDefinition = new Definition($pipelineConf['class'], $arguments);
+        
+        $container->setDefinition(sprintf('pipeline.service.%s.%s', $name, $pipelineConf['class']), $wrapperDefinition);
     }
 }

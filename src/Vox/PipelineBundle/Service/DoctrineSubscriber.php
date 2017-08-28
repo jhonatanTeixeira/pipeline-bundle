@@ -4,6 +4,7 @@ namespace Vox\PipelineBundle\Service;
 
 use Doctrine\Common\EventSubscriber;
 use InvalidArgumentException;
+use Vox\PipelineBundle\Pipeline\PipelineContext;
 use Vox\PipelineBundle\Pipeline\PipelineRunner;
 
 class DoctrineSubscriber implements EventSubscriber
@@ -37,7 +38,7 @@ class DoctrineSubscriber implements EventSubscriber
             );
         }
         
-        $context = new \Vox\PipelineBundle\Pipeline\PipelineContext();
+        $context = new PipelineContext();
         $context->set('event', $arguments[0]);
         
         $this->pipelineRunner->run($context);

@@ -2,6 +2,7 @@
 
 namespace Vox\PipelineBundle\Pipeline;
 
+use Symfony\Component\EventDispatcher\Event;
 use Vox\PipelineBundle\Exception\CannotHandleContextException;
 use Vox\PipelineBundle\Exception\ShouldStopPropagationException;
 
@@ -14,7 +15,7 @@ class PipelineRunner
         $this->pipes[] = $pipe;
     }
     
-    public function run(PipelineContext $context)
+    public function run(Event $context)
     {
         foreach ($this->pipes as $pipe) {
             try {
@@ -32,7 +33,7 @@ class PipelineRunner
                 
                 $pipe(...$arguments);
                 
-                if ($context->isPropagationStoped()) {
+                if ($context->isPropagationStopped()) {
                     return;
                 }
             } catch (CannotHandleContextException $ex) {
@@ -43,7 +44,7 @@ class PipelineRunner
         }
     }
     
-    public function __invoke(PipelineContext $context)
+    public function __invoke(Event $context)
     {
         $this->run($context);
     }

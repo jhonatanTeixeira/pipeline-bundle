@@ -2,11 +2,11 @@
 
 namespace Vox\PipelineBundle\Pipeline;
 
-class PipelineContext
+use Symfony\Component\EventDispatcher\Event;
+
+class PipelineContext extends Event
 {
     private $data = [];
-    
-    private $stopPropagation = false;
     
     public function get($name, $default = null)
     {
@@ -28,15 +28,5 @@ class PipelineContext
     public function __set($name, $value)
     {
         $this->set($name, $value);
-    }
-    
-    public function stopPropagation()
-    {
-        $this->stopPropagation = true;
-    }
-    
-    public function isPropagationStoped(): bool
-    {
-        return $this->stopPropagation;
     }
 }
