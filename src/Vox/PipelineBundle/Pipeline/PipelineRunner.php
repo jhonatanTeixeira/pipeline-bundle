@@ -20,13 +20,13 @@ class PipelineRunner
             try {
                 $arguments = [$context];
                 
-                if ($pipe instanceof CheckableInterface) {
+                if (method_exists($pipe, 'shouldCall')) {
                     if (!call_user_func([$pipe, 'shouldCall'], $context)) {
                         continue;
                     }
                 }
                 
-                if ($pipe instanceof ArgumentableInterface) {
+                if (method_exists($pipe, 'extractArguments')) {
                     $arguments = call_user_func([$pipe, 'extractArguments'], $context);
                 }
                 
@@ -41,5 +41,10 @@ class PipelineRunner
                 return;
             }
         }
+    }
+    
+    public function __invoke(PipelineContext $context)
+    {
+        $this->run($context);
     }
 }
