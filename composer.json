@@ -1,5 +1,5 @@
 {
-    "name": "arquitetura/pipeline-bundle",
+    "name": "vox/pipeline-bundle",
     "license": "MIT",
     "type": "project",
     "autoload": {
