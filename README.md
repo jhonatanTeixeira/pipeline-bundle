@@ -3,16 +3,16 @@
 ## Configuração
 
 ```yaml
-vox_pipeline: # nome do bundle
-    pipelines: # deve declarar um array de pipelines
-        primeiro_passo_filter: # será o nome do serviço que poderar ser referenciado na injeção de dependencia
-            type: kernel-subscriber # tipo de serviço, pode ser kernel-subscriber, doctrine-subscriber e service
-            subscribedEvents: # eventos que os subscribers irão escutar
-                - api.form.post_build.primeiroPasso
-            services: # serviços que compõem a pipeline, srão executados na ordem de declaração
-                - AppBundle\Pipeline\Form\DadosProcessoPipelineService
-                - AppBundle\Pipeline\Form\EmpresaPipelineService
-                - AppBundle\Pipeline\Form\PassoDois\Empresario\EmpresarioPipelineService
+vox_pipeline:                     # nome do bundle
+    pipelines:                    # deve declarar um array de pipelines
+      primeiro_passo_filter:      # será o nome do serviço que poderar ser referenciado na injeção de dependencia
+          type: kernel-subscriber # tipo de serviço, pode ser kernel-subscriber, doctrine-subscriber e service
+          subscribedEvents:       # eventos que os subscribers irão escutar
+            - api.form.post_build.primeiroPasso
+          services:               # serviços que compõem a pipeline, srão executados na ordem de declaração
+            - AppBundle\Pipeline\Form\DadosProcessoPipelineService
+            - AppBundle\Pipeline\Form\EmpresaPipelineService
+            - AppBundle\Pipeline\Form\PassoDois\Empresario\EmpresarioPipelineService
 ```
 
 ## Declaração de um item da pipeline
@@ -22,19 +22,19 @@ Todos os items da pipeline devem ser "callables" que recebem um objeto de contex
 ```php
 class PipelineItem
 {
-	/**
+    /**
      * se houver esse método declarado, ele será chamado antes de chamar o __invoke 
      * e caso ele retone false, não será chamado o __invoke
      * essa interface é implicita, não sendo necessário implementar nenhuma interface
      */
-	public function shouldCall(PipelineContext $context): boolean
+    public function shouldCall(PipelineContext $context): boolean
     {
-    	return true;
+        return true;
     }
     
-	public function __invoke(PipelineContext $context)
+    public function __invoke(PipelineContext $context)
     {
-    	//code
+        //code
     }
 }
 ```
@@ -48,8 +48,8 @@ Escuta a qualquer evento disparado pelo EventDispatcher do symfony, recebera um 
 ```php
 public function __invoke(PipelineContext $context)
 {
-	$event = $context->event;
-	$event = $context->get('event');
+    $event = $context->event;
+    $event = $context->get('event');
 }
 ```
 
@@ -57,20 +57,21 @@ public function __invoke(PipelineContext $context)
 Escuta a qualquer evento do doctrine, e recebe o evento da mesma forma descrita para o kernel subscriber.
 na configuração, deve se usar no subscribedEvents os nomes dos eventos doctrine. Ex:
 
-```yml
+```yaml
 subscribedEvents:
-	- prePersist
-	- postPersist
-	- preUpdtade
-	- postUpdate
-	- onFlush
+    - prePersist
+    - postPersist
+    - preUpdtade
+    - postUpdate
+    - onFlush
 ```
 
 ### - Service (service)
 Esse tipo não escuta a nada, apenas vira um serviço para ser injetado em outros serviço, e se trata de um objeto do tipo PiplineRunner. Eis um exemplo de uso da pipeline:
 
 config so serviço:
-```yml
+
+```yaml
 vox_pipeline:
     pipelines:
         primeiro_passo_filter:
@@ -79,24 +80,25 @@ vox_pipeline:
                 - AppBundle\Pipeline\Form\DadosProcessoPipelineService
                 - AppBundle\Pipeline\Form\EmpresaPipelineService
                 - AppBundle\Pipeline\Form\PassoDois\Empresario\EmpresarioPipelineService
+                
 services:
-	AppBundle\Service\SomeService:
-    	arguments: ['@primeiro_passo_filter']
+    AppBundle\Service\SomeService:
+        arguments: ['@primeiro_passo_filter']
 ```
 
 ```php
 class SomeService
 {
-	private $pipelineRunner;
+    private $pipelineRunner;
     
     public function __contruct(PipelineRunner $pipelineRunner)
     {
-    	$this->pipelineRunner = $pipelineRunner;
+        $this->pipelineRunner = $pipelineRunner;
     }
     
     public function soSomething()
     {
-    	$context = new PipelineContext();
+        $context = new PipelineContext();
         
         $this->pipelineRunner->run($context);
         
@@ -114,27 +116,28 @@ class SomeService
 Existem algumas maneiras de controllar o fluxo da pipeline
 
 Através de exceptions:
+
 ```php
 public function __invoke(PipelineContext $context)
 {
-	//para a execução dessa pipe e vai para a proxima
-	throw new CannotHandleContextException();
+    //para a execução dessa pipe e vai para a proxima
+    throw new CannotHandleContextException();
 }
 ```
 
 ```php
 public function __invoke(PipelineContext $context)
 {
-	//para a execução dessa pipe e termina a execução, evitando de chamar que chame as proximas
-	throw new ShouldStopPropagationException();
+    //para a execução dessa pipe e termina a execução, evitando de chamar que chame as proximas
+    throw new ShouldStopPropagationException();
 }
 ```
 
 ```php
 public function __invoke(PipelineContext $context)
 {
-	// se esse metodo for chamado, os proximos itens da pipeline não serão mais chamados
+    // se esse metodo for chamado, os proximos itens da pipeline não serão mais chamados
     // a execução desse item continua até o final
-	$context->stopPropagation();
+    $context->stopPropagation();
 }
 ```
