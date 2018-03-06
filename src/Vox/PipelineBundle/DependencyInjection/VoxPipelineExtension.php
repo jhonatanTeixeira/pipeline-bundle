@@ -8,6 +8,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 use Vox\PipelineBundle\Pipeline\PipelineRunner;
+use Vox\PipelineBundle\Pipeline\ResponsabilityChainRunner;
 use Vox\PipelineBundle\Service\DoctrineSubscriber;
 use Vox\PipelineBundle\Service\KernelListener;
 
@@ -33,7 +34,11 @@ class VoxPipelineExtension extends Extension
         foreach ($pipelinesConf as $name => $pipelineConf) {
             $type = $pipelineConf['type'];
 
-            $pipelineRunnerDefinition = $container->register($name, PipelineRunner::class);
+            $runnerClassName = $pipelineConf['style'] == 'pipe' 
+                ? PipelineRunner::class
+                : ResponsabilityChainRunner::class;
+            
+            $pipelineRunnerDefinition = $container->register($name, $runnerClassName);
 
             switch ($type) {
                 case 'kernel-subscriber':

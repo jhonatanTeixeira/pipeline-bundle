@@ -6,6 +6,7 @@ use Doctrine\Common\EventSubscriber;
 use InvalidArgumentException;
 use Vox\PipelineBundle\Pipeline\PipelineContext;
 use Vox\PipelineBundle\Pipeline\PipelineRunner;
+use Vox\PipelineBundle\Pipeline\RunnerInterface;
 
 class DoctrineSubscriber implements EventSubscriber
 {
@@ -19,7 +20,7 @@ class DoctrineSubscriber implements EventSubscriber
      */
     private $subscribedEvents;
     
-    public function __construct(PipelineRunner $pipelineRunner, array $subscribedEvents)
+    public function __construct(RunnerInterface $pipelineRunner, array $subscribedEvents)
     {
         $this->pipelineRunner   = $pipelineRunner;
         $this->subscribedEvents = $subscribedEvents;

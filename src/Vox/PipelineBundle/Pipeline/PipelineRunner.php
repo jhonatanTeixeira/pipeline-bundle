@@ -6,7 +6,7 @@ use Symfony\Component\EventDispatcher\Event;
 use Vox\PipelineBundle\Exception\CannotHandleContextException;
 use Vox\PipelineBundle\Exception\ShouldStopPropagationException;
 
-class PipelineRunner
+class PipelineRunner implements RunnerInterface
 {
     private $pipes = [];
     

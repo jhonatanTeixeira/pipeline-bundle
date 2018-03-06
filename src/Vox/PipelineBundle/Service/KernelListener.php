@@ -3,13 +3,13 @@
 namespace Vox\PipelineBundle\Service;
 
 use Symfony\Component\EventDispatcher\Event;
-use Vox\PipelineBundle\Pipeline\PipelineRunner;
+use Vox\PipelineBundle\Pipeline\RunnerInterface;
 
 class KernelListener
 {
     private $pipelineRunner;
     
-    public function __construct(PipelineRunner $pipelineRunner)
+    public function __construct(RunnerInterface $pipelineRunner)
     {
         $this->pipelineRunner = $pipelineRunner;
     }
