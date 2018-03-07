@@ -11,6 +11,16 @@ class ResponsabilityChainRunner implements RunnerInterface
      */
     private $handlers;
     
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+    
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
     public function addPipe(callable $pipe)
     {
         if (!$pipe instanceof ChainHandlerInterface) {
@@ -30,7 +40,9 @@ class ResponsabilityChainRunner implements RunnerInterface
                     $arguments = call_user_func([$pipe, 'extractArguments'], $context);
                 }
                 
+                $this->logger->start($handler, $arguments);
                 $handler(...$arguments);
+                $this->logger->finish($handler, $arguments);
                 
                 return;
             }

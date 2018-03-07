@@ -10,6 +10,16 @@ class PipelineRunner implements RunnerInterface
 {
     private $pipes = [];
     
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
+    
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+    
     public function addPipe(callable $pipe)
     {
         $this->pipes[] = $pipe;
@@ -31,7 +41,9 @@ class PipelineRunner implements RunnerInterface
                     $arguments = call_user_func([$pipe, 'extractArguments'], $context);
                 }
                 
+                $this->logger->start($pipe, $arguments);
                 $pipe(...$arguments);
+                $this->logger->finish($pipe, $arguments);
                 
                 if ($context->isPropagationStopped()) {
                     return;

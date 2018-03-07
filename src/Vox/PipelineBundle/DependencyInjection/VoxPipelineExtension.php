@@ -30,6 +30,7 @@ class VoxPipelineExtension extends Extension
     private function loadServices($config, ContainerBuilder $container)
     {
         $pipelinesConf = $config['pipelines'];
+        $this->createLogger($container);
 
         foreach ($pipelinesConf as $name => $pipelineConf) {
             $type = $pipelineConf['type'];
@@ -38,7 +39,8 @@ class VoxPipelineExtension extends Extension
                 ? PipelineRunner::class
                 : ResponsabilityChainRunner::class;
             
-            $pipelineRunnerDefinition = $container->register($name, $runnerClassName);
+            $pipelineRunnerDefinition = $container->register($name, $runnerClassName)
+                ->setAutowired(true);
 
             switch ($type) {
                 case 'kernel-subscriber':
@@ -58,6 +60,14 @@ class VoxPipelineExtension extends Extension
                 $pipelineRunnerDefinition->addMethodCall('addPipe', [new Reference($service)]);
             }
         }
+    }
+    
+    private function createLogger(ContainerBuilder $container)
+    {
+        $name = \Vox\PipelineBundle\Pipeline\PipelineLogger::class;
+        
+        $container->autowire($name)
+            ->addTag('monolog.logger', ['channel' => 'pipelines']);
     }
     
     private function configureKernelListener($name, array $pipelineConf, ContainerBuilder $container)
